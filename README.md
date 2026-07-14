@@ -51,3 +51,41 @@ Virtual-Sign-Language-Tutor/
 # Run the main app
 streamlit run app.py
 ```
+
+## Hand landmark feature extraction
+
+Run `python hand_detection.py` to show 21 landmark IDs and create a feature
+vector for every detected hand. Raw MediaPipe coordinates include both the hand
+pose and its position in the camera image. The pipeline subtracts landmark 0
+(the wrist) from all landmarks, placing the wrist at `(0, 0, 0)`, then divides
+by the largest wrist-to-landmark distance. This reduces the effects of screen
+location, resolution, hand size, camera distance, and small movements.
+
+Each hand becomes a fixed 63-value vector in `[x0, y0, z0, ..., x20, y20, z20]`
+order. A later sign-language model can train on these normalized pose features
+instead of learning irrelevant screen position. The webcam overlay shows IDs,
+hand count, feature length, and FPS; raw and normalized values print once per
+second for debugging.
+
+## Hand landmark feature extraction
+
+Run the real-time landmark pipeline with:
+
+```
+python hand_detection.py
+```
+
+For every detected hand, MediaPipe provides 21 raw `(x, y, z)` landmarks. Raw
+coordinates describe both the pose and where the hand happens to be in the
+camera frame, so they are not ideal ML inputs. The pipeline subtracts landmark
+`0` (the wrist) from every landmark, making the wrist `(0, 0, 0)`, then divides
+by the largest wrist-to-landmark distance. This makes features substantially
+less sensitive to image position, resolution, camera distance, hand size, and
+small movements.
+
+The resulting fixed-length feature vector contains 63 values in landmark-major
+order: `[x0, y0, z0, x1, y1, z1, ... x20, y20, z20]`. Later, a sign-language
+model can learn pose patterns from these comparable vectors without being
+distracted by the hand's location in the image. The script draws landmark IDs,
+detected-hand count, feature length, and FPS on the webcam window, and prints
+raw and normalized coordinates once per second for debugging.
