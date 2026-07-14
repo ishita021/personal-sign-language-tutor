@@ -67,6 +67,14 @@ instead of learning irrelevant screen position. The webcam overlay shows IDs,
 hand count, feature length, and FPS; raw and normalized values print once per
 second for debugging.
 
+## Tutor dashboard
+
+Run `streamlit run app.py` for Dashboard, Tutor, Learning, Quiz, and Settings
+modes. Progress and preferences are saved locally under `data/`. The dashboard
+works offline; voice guidance uses the browser's speech engine when enabled.
+Random Forest was selected because it is robust for compact landmark vectors,
+needs little tuning, and provides confidence probabilities for feedback.
+
 ## Hand landmark feature extraction
 
 Run the real-time landmark pipeline with:
