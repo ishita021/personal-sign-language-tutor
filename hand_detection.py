@@ -23,6 +23,39 @@ Architecture:
 import cv2
 import mediapipe as mp
 import time
+import numpy as np
+
+LANDMARK_COUNT = 21
+FEATURE_LENGTH = 63
+
+
+class LandmarkNormalizer:
+    """Makes a hand wrist-relative and scale-independent for ML."""
+    def normalize(self, landmarks):
+        points = np.asarray(landmarks, dtype=np.float32)
+        if points.shape != (LANDMARK_COUNT, 3) or not np.isfinite(points).all():
+            return None
+        relative = points - points[0]  # wrist (landmark 0) becomes the origin.
+        scale = float(np.max(np.linalg.norm(relative, axis=1)))
+        return relative / scale if scale > np.finfo(np.float32).eps else None
+
+
+class FeatureExtractor:
+    """Creates the fixed 63-value [x0,y0,z0,...,x20,y20,z20] ML input."""
+    def extract(self, normalized):
+        if normalized is None or np.asarray(normalized).shape != (LANDMARK_COUNT, 3):
+            return None
+        return np.asarray(normalized, dtype=np.float32).reshape(FEATURE_LENGTH)
+
+
+def landmarks_to_array(landmark_list):
+    """Convert the detector's landmark dictionaries to an ordered 21x3 array."""
+    if len(landmark_list) != LANDMARK_COUNT:
+        return None
+    try:
+        return np.array([[item["x"], item["y"], item["z"]] for item in landmark_list], dtype=np.float32)
+    except (KeyError, TypeError, ValueError):
+        return None
 
 
 # ---------------------------------------------------------------------------
